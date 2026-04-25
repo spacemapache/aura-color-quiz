@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What's Your Aura? ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Nunito', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-18px) rotate(180deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-14px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes orbPulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.12); opacity: 1; }
+    }
+    @keyframes revealCard {
+      0% { transform: scale(0.6) translateY(40px); opacity: 0; }
+      70% { transform: scale(1.04) translateY(-4px); }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes traitPop {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const questions = [
+      {
+        question: "What does your ideal Sunday morning look like?",
+        options: [
+          { text: "Making matcha & journaling in cozy pajamas ☕", color: "green" },
+          { text: "Sleeping in until noon, dreams still lingering 🌙", color: "purple" },
+          { text: "Full self-care ritual — face mask, playlist, the works 🫧", color: "pink" },
+          { text: "Calling your bestie and chatting for hours 💛", color: "gold" },
+          { text: "Reading by the window with a cup of tea 📖", color: "blue" },
+          { text: "Gentle yoga and meditating in silence 🤍", color: "white" },
+        ]
+      },
+      {
+        question: "Which color palette speaks to your soul?",
+        options: [
+          { text: "Sage green, warm cream & natural wood 🌿", color: "green" },
+          { text: "Deep plum, midnight blue & silver ✨", color: "purple" },
+          { text: "Blush pink, rose gold & ivory 🌸", color: "pink" },
+          { text: "Warm honey, golden yellow & terracotta 🌻", color: "gold" },
+          { text: "Sky blue, soft white & clean linen 🌊", color: "blue" },
+          { text: "Crisp white, pearl & the softest grey 🕊️", color: "white" },
+        ]
+      },
+      {
+        question: "How do your friends describe you?",
+        options: [
+          { text: "The grounded one — always giving the best advice 🌱", color: "green" },
+          { text: "The mysterious one — deep, complex, magnetic 🔮", color: "purple" },
+          { text: "The romantic one — soft, sweet, full of love 💌", color: "pink" },
+          { text: "The sunshine one — bubbly, warm, lights up the room ☀️", color: "gold" },
+          { text: "The calm one — thoughtful, wise, never reactive 💙", color: "blue" },
+          { text: "The ethereal one — otherworldly, pure, serene 👼", color: "white" },
+        ]
+      },
+      {
+        question: "Where is your dream vacation?",
+        options: [
+          { text: "A mossy forest cabin, fireplace, total peace 🍃", color: "green" },
+          { text: "Tokyo at night — neon lights, mystery, magic 🌆", color: "purple" },
+          { text: "Paris in spring — cobblestones, café au lait, blooms 🗼", color: "pink" },
+          { text: "Santorini — golden hour, sparkling sea, pure joy 🌅", color: "gold" },
+          { text: "Maldives — overwater bungalow, crystal blue calm 🐚", color: "blue" },
+          { text: "A silent mountain monastery, clouds below you 🏔️", color: "white" },
+        ]
+      },
+      {
+        question: "Which aesthetic is so you?",
+        options: [
+          { text: "Cottagecore — wildflowers, baking bread, soft life 🌾", color: "green" },
+          { text: "Dark academia — velvet, old books, candlelight 📜", color: "purple" },
+          { text: "Coquette — bows, lace, everything sweet & girlie 🎀", color: "pink" },
+          { text: "Old money summer — linen, sun-kissed, effortless glow 🍋", color: "gold" },
+          { text: "Clean girl — minimal, fresh, quietly confident 🧊", color: "blue" },
+          { text: "Angel aesthetic — clouds, light, divine & untouchable 🪷", color: "white" },
+        ]
+      }
+    ];
+
+    const auras = {
+      pink: {
+        title: "Your aura is Pink",
+        emoji: "🌸",
+        orbGradient: "radial-gradient(circle at 40% 35%, #fff0f5, #ffb3d1, #ff85b3, #e8607a)",
+        bgGradient: "linear-gradient(135deg, #fff5f8, #ffd6e7, #ffafd7, #ffc2d4, #ffe4ee)",
+        glowColor: "#ffb3d1",
+        traits: ["Loving", "Romantic", "Empathetic", "Gentle", "Creative"],
+        traitBg: "linear-gradient(135deg, #ff85b3, #ffb3d1)",
+        description: "You radiate pure love and soft energy. Your aura is the color of romance, sweetness, and an open heart that sees the beauty in everything. People feel safe, seen, and adored in your presence — you give the best hugs, you remember everyone's favorite things, and your love language? All of them. You're the one who makes life feel like a fairytale, and you deserve every single magical moment of it. 🌹",
+      },
+      purple: {
+        title: "Your aura is Purple",
+        emoji: "🔮",
+        orbGradient: "radial-gradient(circle at 40% 35%, #f0e6ff, #c9a7e8, #a875d4, #7b3fa0)",
+        bgGradient: "linear-gradient(135deg, #f8f0ff, #e8d5f5, #c9a7e8, #d4b0f0, #eeddf8)",
+        glowColor: "#c9a7e8",
+        traits: ["Intuitive", "Mystical", "Deep", "Wise", "Visionary"],
+        traitBg: "linear-gradient(135deg, #a875d4, #c9a7e8)",
+        description: "Mystical, intuitive, and beautifully complex — your purple aura means you see what others can't. You're drawn to the hidden, the symbolic, the things that exist just between logic and magic. People are fascinated by you without quite knowing why. You have a rare gift for sensing energy and understanding the universe's deeper patterns, and your mind is genuinely one of a kind. ✨",
+      },
+      blue: {
+        title: "Your aura is Blue",
+        emoji: "💙",
+        orbGradient: "radial-gradient(circle at 40% 35%, #eef7ff, #aad4f5, #7ab8f5, #3a88d8)",
+        bgGradient: "linear-gradient(135deg, #f0f8ff, #daeeff, #aad4f5, #c5e3ff, #e0f2ff)",
+        glowColor: "#aad4f5",
+        traits: ["Calm", "Communicative", "Honest", "Serene", "Thoughtful"],
+        traitBg: "linear-gradient(135deg, #4a9fe0, #92c4f5)",
+        description: "Calm, clear, and endlessly trustworthy — your blue aura is the energy of still water and open skies. You're the person everyone turns to when they need real talk with no drama, just clarity. You communicate with such grace that even hard truths feel like a gift. Your inner world is rich and vast, and you carry a quiet wisdom that grounds everyone around you. Peace follows you everywhere. 🌊",
+      },
+      gold: {
+        title: "Your aura is Gold",
+        emoji: "✨",
+        orbGradient: "radial-gradient(circle at 40% 35%, #fffae0, #ffd97d, #ffb830, #e89000)",
+        bgGradient: "linear-gradient(135deg, #fffbf0, #fff3c4, #ffd97d, #ffe5a0, #fff5d6)",
+        glowColor: "#ffd97d",
+        traits: ["Radiant", "Joyful", "Generous", "Charismatic", "Magnetic"],
+        traitBg: "linear-gradient(135deg, #e89000, #ffd060)",
+        description: "Radiant, magnetic, and impossibly warm — your golden aura lights up every room you walk into. You have that rare quality where people just feel better after talking to you. Your energy is the sun: life-giving, generous, and impossible to ignore. You celebrate others as loudly as yourself, and your joy is completely contagious. The universe clearly has big things planned for someone who shines this bright. 🌟",
+      },
+      green: {
+        title: "Your aura is Green",
+        emoji: "🌿",
+        orbGradient: "radial-gradient(circle at 40% 35%, #edfaed, #a8e6a8, #70c870, #3a9a3a)",
+        bgGradient: "linear-gradient(135deg, #f0fff4, #d4f5d4, #a8e6a8, #c2edcc, #dcf5e4)",
+        glowColor: "#a8e6a8",
+        traits: ["Nurturing", "Grounded", "Healing", "Intuitive", "Steady"],
+        traitBg: "linear-gradient(135deg, #3a9a3a, #7dd87d)",
+        description: "Rooted, healing, and deeply nurturing — your green aura is nature's most powerful energy. You have an instinct for growth: in plants, in people, in yourself. You're the friend who notices when something's off, who shows up with soup, who makes space for people to just be. There's something grounding about you that others can't get enough of. You're quietly changing the world by healing the people around you. 🍃",
+      },
+      white: {
+        title: "Your aura is White",
+        emoji: "🤍",
+        orbGradient: "radial-gradient(circle at 40% 35%, #ffffff, #f5f5f8, #e8e8f4, #d0d0e8)",
+        bgGradient: "linear-gradient(135deg, #ffffff, #f8f8ff, #f0f0f8, #fafafe, #f5f5ff)",
+        glowColor: "#d8d8f0",
+        traits: ["Pure", "Spiritual", "Elevated", "Serene", "Transcendent"],
+        traitBg: "linear-gradient(135deg, #9090c0, #c0c0e0)",
+        description: "Pure, elevated, and spiritually luminous — your white aura is the rarest and most serene. You exist on a slightly different plane than most, and they can feel it. There's a quiet divinity to the way you move through the world. You're deeply connected to something greater than yourself, whether you call it spirit, universe, or simply truth. You're an old soul, here to remind the rest of us what peace actually feels like. 🕊️",
+      },
+    };
+
+    // Soft pastel animated background used on welcome + quiz screens
+    const sharedBg = {
+      background: "linear-gradient(135deg, #fff0f5, #f5e6ff, #eaf0ff, #fff5e6, #f0fff5)",
+      backgroundSize: "400% 400%",
+      animation: "gradientShift 10s ease infinite",
+    };
+
+    function Orbs({ colors, positions }) {
+      return colors.map((color, i) => (
+        <div key={i} style={{
+          position: "absolute",
+          width: `${90 + i * 25}px`,
+          height: `${90 + i * 25}px`,
+          borderRadius: "50%",
+          background: color,
+          opacity: 0.18,
+          top: positions[i][0],
+          left: positions[i][1],
+          filter: "blur(28px)",
+          animation: `float ${3.5 + i * 0.6}s ease-in-out infinite`,
+          animationDelay: `${i * 0.5}s`,
+          pointerEvents: "none",
+        }} />
+      ));
+    }
+
+    function ProgressBar({ current, total }) {
+      return (
+        <div style={{ width: "100%", marginBottom: "1.75rem" }}>
+          <div style={{
+            display: "flex", justifyContent: "space-between",
+            marginBottom: "0.45rem",
+            color: "rgba(110, 70, 120, 0.65)",
+            fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.06em",
+          }}>
+            <span>Question {current} of {total}</span>
+            <span>{Math.round((current / total) * 100)}%</span>
+          </div>
+          <div style={{
+            height: "5px", background: "rgba(200, 150, 210, 0.18)",
+            borderRadius: "10px", overflow: "hidden",
+          }}>
+            <div style={{
+              height: "100%",
+              width: `${(current / total) * 100}%`,
+              background: "linear-gradient(90deg, #f0a0c0, #c090e0, #90c0f0)",
+              backgroundSize: "200% 100%",
+              animation: "gradientShift 3s ease infinite",
+              borderRadius: "10px",
+              transition: "width 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+            }} />
+          </div>
+        </div>
+      );
+    }
+
+    function WelcomeScreen({ onStart }) {
+      return (
+        <div style={{
+          minHeight: "100vh", ...sharedBg,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "2rem", position: "relative", overflow: "hidden",
+        }}>
+          <Orbs
+            colors={["#ffb3d1", "#c9a7e8", "#aad4f5", "#ffd97d", "#a8e6a8"]}
+            positions={[["8%","4%"], ["62%","78%"], ["22%","55%"], ["70%","10%"], ["42%","85%"]]}
+          />
+
+          <div style={{
+            background: "rgba(255,255,255,0.76)",
+            backdropFilter: "blur(22px)",
+            borderRadius: "2rem",
+            padding: "3rem 2.5rem",
+            maxWidth: "460px", width: "100%",
+            textAlign: "center",
+            boxShadow: "0 8px 48px rgba(192,144,224,0.18)",
+            border: "1px solid rgba(255,255,255,0.85)",
+            animation: "fadeIn 0.7s ease",
+            position: "relative", zIndex: 1,
+          }}>
+            <div style={{ fontSize: "3.2rem", marginBottom: "0.75rem", animation: "pulse 3s ease infinite", display: "inline-block" }}>
+              ✨
+            </div>
+            <h1 style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "2.1rem", color: "#7a4f8c",
+              lineHeight: 1.25, marginBottom: "0.4rem",
+            }}>
+              What Color Is
+            </h1>
+            <h1 style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              fontSize: "2.3rem", color: "#c06090",
+              lineHeight: 1.2, marginBottom: "1.1rem",
+            }}>
+              Your Aura?
+            </h1>
+            <p style={{
+              color: "rgba(90, 55, 100, 0.75)",
+              fontSize: "0.97rem", lineHeight: 1.75,
+              marginBottom: "2rem", fontWeight: 400,
+            }}>
+              Answer 5 little questions and discover the color that radiates from your soul. No wrong answers — only your truth. 🌸
+            </p>
+
+            <button onClick={onStart} style={{
+              background: "linear-gradient(135deg, #f0a0c0, #c090e0, #90c0f0)",
+              backgroundSize: "200% 200%",
+              animation: "gradientShift 4s ease infinite",
+              color: "white",
+              border: "none", borderRadius: "50px",
+              padding: "1rem 2.6rem",
+              fontSize: "1.05rem",
+              fontFamily: "'Nunito', sans-serif",
+              fontWeight: 700, cursor: "pointer",
+              letterSpacing: "0.05em",
+              transition: "transform 0.25s ease, box-shadow 0.25s ease",
+              boxShadow: "0 4px 22px rgba(192,144,224,0.45)",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px) scale(1.03)"; e.currentTarget.style.boxShadow = "0 8px 30px rgba(192,144,224,0.55)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 4px 22px rgba(192,144,224,0.45)"; }}
+            >
+              Find My Aura ✨
+            </button>
+
+            <div style={{
+              marginTop: "1.75rem", fontSize: "1.05rem",
+              letterSpacing: "0.12em", opacity: 0.55,
+            }}>
+              🌸 💜 💙 ✨ 🌿 🤍
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function QuizScreen({ question, questionNum, total, onAnswer }) {
+      const [selected, setSelected] = useState(null);
+
+      const handleSelect = (option) => {
+        if (selected !== null) return;
+        setSelected(option.color);
+        setTimeout(() => {
+          onAnswer(option.color);
+          setSelected(null);
+        }, 380);
+      };
+
+      return (
+        <div style={{
+          minHeight: "100vh", ...sharedBg,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "2rem", position: "relative", overflow: "hidden",
+        }}>
+          <Orbs
+            colors={["#ffb3d1", "#c9a7e8", "#aad4f5", "#a8e6a8"]}
+            positions={[["5%","5%"], ["65%","80%"], ["15%","70%"], ["75%","8%"]]}
+          />
+
+          <div style={{
+            background: "rgba(255,255,255,0.78)",
+            backdropFilter: "blur(22px)",
+            borderRadius: "2rem",
+            padding: "2.5rem 2rem",
+            maxWidth: "520px", width: "100%",
+            boxShadow: "0 8px 48px rgba(192,144,224,0.18)",
+            border: "1px solid rgba(255,255,255,0.85)",
+            animation: "fadeIn 0.45s ease",
+            position: "relative", zIndex: 1,
+          }}>
+            <ProgressBar current={questionNum} total={total} />
+
+            <h2 style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "1.35rem", color: "#7a4f8c",
+              marginBottom: "1.5rem", lineHeight: 1.45,
+              animation: "fadeIn 0.5s ease 0.05s both",
+            }}>
+              {question.question}
+            </h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+              {question.options.map((option, i) => {
+                const isSelected = selected === option.color;
+                return (
+                  <button key={i} onClick={() => handleSelect(option)} style={{
+                    background: isSelected
+                      ? "linear-gradient(135deg, #f0a0c0, #c090e0)"
+                      : "rgba(255,255,255,0.82)",
+                    color: isSelected ? "white" : "#5a3a6a",
+                    border: `1.5px solid ${isSelected ? "transparent" : "rgba(195,155,220,0.28)"}`,
+                    borderRadius: "14px",
+                    padding: "0.95rem 1.2rem",
+                    fontSize: "0.93rem",
+                    fontFamily: "'Nunito', sans-serif",
+                    fontWeight: 500, cursor: "pointer",
+                    textAlign: "left", lineHeight: 1.45,
+                    transition: "all 0.22s ease",
+                    animation: `slideIn 0.4s ease ${i * 0.06}s both`,
+                    boxShadow: isSelected
+                      ? "0 4px 20px rgba(192,144,224,0.4)"
+                      : "0 2px 8px rgba(200,155,210,0.08)",
+                    transform: isSelected ? "scale(0.98)" : "scale(1)",
+                  }}
+                    onMouseEnter={e => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = "rgba(238,218,255,0.55)";
+                        e.currentTarget.style.transform = "translateX(5px)";
+                        e.currentTarget.style.borderColor = "rgba(192,144,224,0.45)";
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = "rgba(255,255,255,0.82)";
+                        e.currentTarget.style.transform = "translateX(0)";
+                        e.currentTarget.style.borderColor = "rgba(195,155,220,0.28)";
+                      }
+                    }}
+                  >
+                    {option.text}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ResultScreen({ auraColor, onRetake }) {
+      const aura = auras[auraColor];
+      const [show, setShow] = useState(false);
+
+      useEffect(() => {
+        const t = setTimeout(() => setShow(true), 80);
+        return () => clearTimeout(t);
+      }, []);
+
+      return (
+        <div style={{
+          minHeight: "100vh",
+          background: aura.bgGradient,
+          backgroundSize: "400% 400%",
+          animation: "gradientShift 7s ease infinite",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "2rem", position: "relative", overflow: "hidden",
+        }}>
+          {/* Aura glow orbs in result color */}
+          {[0,1,2,3].map(i => (
+            <div key={i} style={{
+              position: "absolute",
+              width: `${110 + i * 55}px`,
+              height: `${110 + i * 55}px`,
+              borderRadius: "50%",
+              background: aura.glowColor,
+              opacity: 0.22,
+              top: `${[12,68,28,78][i]}%`,
+              left: `${[8,76,55,22][i]}%`,
+              filter: "blur(35px)",
+              animation: `float ${4.2 + i * 0.7}s ease-in-out infinite`,
+              animationDelay: `${i * 0.6}s`,
+            }} />
+          ))}
+
+          <div style={{
+            background: "rgba(255,255,255,0.74)",
+            backdropFilter: "blur(26px)",
+            borderRadius: "2rem",
+            padding: "2.5rem 2rem",
+            maxWidth: "500px", width: "100%",
+            textAlign: "center",
+            boxShadow: `0 10px 60px ${aura.glowColor}88`,
+            border: "1px solid rgba(255,255,255,0.88)",
+            animation: show ? "revealCard 0.75s cubic-bezier(0.34,1.56,0.64,1) both" : "none",
+            position: "relative", zIndex: 1,
+          }}>
+
+            {/* Animated aura orb */}
+            <div style={{
+              width: "120px", height: "120px",
+              borderRadius: "50%",
+              background: aura.orbGradient,
+              boxShadow: `0 0 0 12px ${aura.glowColor}55, 0 0 50px 10px ${aura.glowColor}88`,
+              margin: "0 auto 1.5rem",
+              animation: "orbPulse 3s ease-in-out infinite",
+            }} />
+
+            <p style={{
+              fontFamily: "'Nunito', sans-serif",
+              fontSize: "0.78rem", fontWeight: 700,
+              letterSpacing: "0.18em", textTransform: "uppercase",
+              color: "rgba(90,55,100,0.55)", marginBottom: "0.4rem",
+            }}>
+              Your Aura Color is…
+            </p>
+
+            <h1 style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "1.95rem", color: "#52306a",
+              marginBottom: "0.2rem", lineHeight: 1.2,
+            }}>
+              {aura.title}
+            </h1>
+            <div style={{ fontSize: "1.6rem", marginBottom: "1.25rem" }}>{aura.emoji}</div>
+
+            {/* Trait pills */}
+            <div style={{
+              display: "flex", flexWrap: "wrap", gap: "0.45rem",
+              justifyContent: "center", marginBottom: "1.4rem",
+            }}>
+              {aura.traits.map((trait, i) => (
+                <span key={i} style={{
+                  background: aura.traitBg,
+                  color: "white",
+                  borderRadius: "50px",
+                  padding: "0.3rem 0.95rem",
+                  fontSize: "0.78rem", fontWeight: 700,
+                  letterSpacing: "0.04em",
+                  animation: `traitPop 0.5s cubic-bezier(0.34,1.56,0.64,1) ${0.25 + i * 0.1}s both`,
+                }}>
+                  {trait}
+                </span>
+              ))}
+            </div>
+
+            <p style={{
+              color: "rgba(70,40,80,0.82)",
+              fontSize: "0.93rem", lineHeight: 1.82,
+              marginBottom: "2rem", fontWeight: 400,
+              animation: "fadeIn 0.8s ease 0.5s both",
+            }}>
+              {aura.description}
+            </p>
+
+            <button onClick={onRetake} style={{
+              background: "rgba(255,255,255,0.55)",
+              color: "#7a4f8c",
+              border: "1.5px solid rgba(192,144,224,0.38)",
+              borderRadius: "50px",
+              padding: "0.85rem 2.1rem",
+              fontSize: "0.95rem",
+              fontFamily: "'Nunito', sans-serif",
+              fontWeight: 700, cursor: "pointer",
+              transition: "all 0.25s ease",
+              letterSpacing: "0.03em",
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = aura.traitBg;
+                e.currentTarget.style.color = auraColor === "white" ? "#52306a" : "white";
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.border = "1.5px solid transparent";
+                e.currentTarget.style.boxShadow = `0 6px 20px ${aura.glowColor}99`;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.55)";
+                e.currentTarget.style.color = "#7a4f8c";
+                e.currentTarget.style.transform = "";
+                e.currentTarget.style.border = "1.5px solid rgba(192,144,224,0.38)";
+                e.currentTarget.style.boxShadow = "";
+              }}
+            >
+              Take it again ✨
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [screen, setScreen] = useState("welcome");
+      const [currentQ, setCurrentQ] = useState(0);
+      const [scores, setScores] = useState({ pink:0, purple:0, blue:0, gold:0, green:0, white:0 });
+
+      const handleAnswer = (color) => {
+        const next = { ...scores, [color]: scores[color] + 1 };
+        setScores(next);
+        if (currentQ + 1 >= questions.length) {
+          setScreen("result");
+        } else {
+          setCurrentQ(currentQ + 1);
+        }
+      };
+
+      const handleRetake = () => {
+        setScreen("welcome");
+        setCurrentQ(0);
+        setScores({ pink:0, purple:0, blue:0, gold:0, green:0, white:0 });
+      };
+
+      const getAuraColor = () =>
+        Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+
+      if (screen === "welcome") return <WelcomeScreen onStart={() => setScreen("quiz")} />;
+      if (screen === "quiz") return (
+        <QuizScreen
+          key={currentQ}
+          question={questions[currentQ]}
+          questionNum={currentQ + 1}
+          total={questions.length}
+          onAnswer={handleAnswer}
+        />
+      );
+      return <ResultScreen auraColor={getAuraColor()} onRetake={handleRetake} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
